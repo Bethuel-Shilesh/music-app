@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { songs } from "@/lib/songs";
-import { Play, Music2, Clock } from "lucide-react";
+import { Play, Music2, Clock, Search } from "lucide-react";
 import { useMusic } from "@/context/MusicContext";
 
 export default function Home() {
@@ -32,8 +32,61 @@ export default function Home() {
   return (
     <div className="h-full overflow-y-auto" style={{ background: "#080808" }}>
 
+      {/* ── TOP SEARCH BAR ── */}
+      <div
+        className="sticky top-0 z-50"
+        style={{
+          padding: "16px 48px",
+          background: "rgba(8,8,8,0.85)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
+        }}
+      >
+        <div
+          onClick={() => router.push("/search")}
+          className="flex items-center gap-4 px-6 rounded-2xl cursor-pointer transition-all duration-300"
+          style={{
+            height: "52px",
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            maxWidth: "560px",
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.12)";
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.4)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 0 30px rgba(124,58,237,0.15)";
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "none";
+          }}
+        >
+          <Search size={18} style={{ color: "rgba(167,139,250,0.6)" }} className="flex-shrink-0" />
+          <span
+            className="flex-1 text-sm"
+            style={{
+              color: "rgba(255,255,255,0.25)",
+              fontFamily: "Figtree, sans-serif",
+            }}
+          >
+            Search songs, artists...
+          </span>
+          <div
+            className="px-3 py-1 rounded-lg text-xs flex-shrink-0"
+            style={{
+              background: "rgba(124,58,237,0.2)",
+              color: "rgba(167,139,250,0.7)",
+              border: "1px solid rgba(124,58,237,0.3)",
+            }}
+          >
+            Search
+          </div>
+        </div>
+      </div>
+
       {/* ── HERO SECTION ── */}
-      <div className="relative w-full" style={{ height: "400px" }}>
+      <div className="relative w-full" style={{ height: "380px" }}>
 
         {/* Blurred backgrounds */}
         {songs.map((song, index) => (
@@ -65,15 +118,18 @@ export default function Home() {
         }} />
 
         {/* Hero Content */}
-        <div className="absolute inset-0 flex items-center" style={{ paddingLeft: "48px", paddingRight: "48px" }}>
+        <div
+          className="absolute inset-0 flex items-center"
+          style={{ paddingLeft: "48px", paddingRight: "48px" }}
+        >
           <div className="flex items-center gap-10 w-full">
 
             {/* Album Art */}
             <div
               className="flex-shrink-0 relative"
               style={{
-                width: "200px",
-                height: "200px",
+                width: "190px",
+                height: "190px",
                 borderRadius: "24px",
                 overflow: "hidden",
                 boxShadow: "0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(124,58,237,0.3)",

@@ -1,7 +1,7 @@
 "use client";
 
 import { songs } from "@/lib/songs";
-import { Home, Search, Library, Heart, Clock, ListMusic, Disc3 } from "lucide-react";
+import { Home, Mic2, Library, Heart, Clock, ListMusic, Disc3 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMusic } from "@/context/MusicContext";
@@ -13,7 +13,7 @@ export default function Sidebar() {
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
-    { href: "/search", icon: Search, label: "Search" },
+    { href: "/artist", icon: Mic2, label: "Artist" },
     { href: "/library", icon: Library, label: "Library" },
   ];
 
@@ -62,27 +62,7 @@ export default function Sidebar() {
           <p className="text-purple-400/40 text-xs tracking-widest">Music Player</p>
         </div>
       </div>
-
-      {/* ── SEARCH ── */}
-      <div className="flex-shrink-0 px-5" style={{ marginBottom: "20px" }}>
-        <div
-          className="flex items-center gap-3 px-5 rounded-2xl"
-          style={{
-            height: "56px",
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          <Search size={18} style={{ color: "rgba(167,139,250,0.5)" }} className="flex-shrink-0" />
-          <input
-            type="text"
-            placeholder="Search songs, artists..."
-            className="bg-transparent text-white/70 placeholder-white/25 outline-none w-full"
-            style={{ fontSize: "14px" }}
-          />
-        </div>
-      </div>
-
+    
       {/* ── NAV GRID ── */}
       <div className="flex-shrink-0 px-5" style={{ marginBottom: "16px" }}>
         <div className="grid grid-cols-3 gap-2.5">
