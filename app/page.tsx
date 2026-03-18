@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { songs } from "@/lib/songs";
 import { Play, Music2, Clock } from "lucide-react";
+import { useMusic } from "@/context/MusicContext";
 
 export default function Home() {
+  const router = useRouter();
+  const { playSong } = useMusic();
   const [activeBg, setActiveBg] = useState(0);
   const [mounted, setMounted] = useState(false);
 
@@ -141,6 +145,10 @@ export default function Home() {
 
               {/* Play button */}
               <button
+                onClick={() => {
+                  playSong(songs[activeBg]);
+                  router.push("/now-playing");
+                }}
                 className="mt-7 flex items-center gap-3 px-8 py-3 rounded-full font-semibold text-sm transition-all duration-200 hover:scale-105"
                 style={{
                   background: "linear-gradient(135deg, #7c3aed, #a855f7)",
@@ -192,6 +200,10 @@ export default function Home() {
             {songs.slice(0, 2).map((song) => (
               <div
                 key={song.id}
+                onClick={() => {
+                  playSong(song);
+                  router.push("/now-playing");
+                }}
                 className="flex items-center gap-4 p-5 rounded-2xl cursor-pointer transition-all duration-300 group"
                 style={{
                   background: "rgba(255,255,255,0.04)",
@@ -267,6 +279,10 @@ export default function Home() {
             {songs.map((song, index) => (
               <div
                 key={song.id}
+                onClick={() => {
+                  playSong(song);
+                  router.push("/now-playing");
+                }}
                 className="grid grid-cols-12 px-8 py-5 cursor-pointer transition-all duration-200 group items-center"
                 style={{
                   borderBottom: index < songs.length - 1

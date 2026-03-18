@@ -1,104 +1,35 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Song, songs } from "@/lib/songs";
+import { useMusic } from "@/context/MusicContext";
 import {
   Play, Pause, SkipBack, SkipForward,
   Volume2, VolumeX, Shuffle, Repeat, Heart
 } from "lucide-react";
+import { useState } from "react";
 
-interface BottomPlayerProps {
-  currentSong: Song;
-  isPlaying: boolean;
-  likedSongs: string[];
-  onPlayPause: () => void;
-  onSongChange: (song: Song) => void;
-  onToggleLike: (songId: string) => void;
-}
+export default function BottomPlayer() {
+  const {
+    currentSong,
+    isPlaying,
+    likedSongs,
+    progress,
+    currentTime,
+    duration,
+    volume,
+    shuffle,
+    repeat,
+    togglePlay,
+    toggleLike,
+    handleNext,
+    handlePrev,
+    handleProgressClick,
+    handleVolume,
+    toggleShuffle,
+    toggleRepeat,
+  } = useMusic();
 
-export default function BottomPlayer({
-  currentSong,
-  isPlaying,
-  likedSongs,
-  onPlayPause,
-  onSongChange,
-  onToggleLike,
-}: BottomPlayerProps) {
-  const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState("0:00");
-  const [duration, setDuration] = useState("0:00");
-  const [volume, setVolume] = useState(1);
   const [muted, setMuted] = useState(false);
-  const [shuffle, setShuffle] = useState(false);
-  const [repeat, setRepeat] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
   const isLiked = likedSongs.includes(currentSong.id);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (isPlaying) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying, currentSong]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const update = () => {
-      const percent = (audio.currentTime / audio.duration) * 100;
-      setProgress(isNaN(percent) ? 0 : percent);
-      setCurrentTime(formatTime(audio.currentTime));
-      setDuration(formatTime(audio.duration));
-    };
-    audio.addEventListener("timeupdate", update);
-    return () => audio.removeEventListener("timeupdate", update);
-  }, [currentSong]);
-
-  const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00";
-    const mins = Math.floor(time / 60);
-    const secs = Math.floor(time % 60).toString().padStart(2, "0");
-    return `${mins}:${secs}`;
-  };
-
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const bar = e.currentTarget;
-    const clickX = e.clientX - bar.getBoundingClientRect().left;
-    audio.currentTime = (clickX / bar.offsetWidth) * audio.duration;
-  };
-
-  const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    setVolume(val);
-    if (audioRef.current) audioRef.current.volume = val;
-    setMuted(val === 0);
-  };
-
-  const toggleMute = () => {
-    if (!audioRef.current) return;
-    audioRef.current.muted = !muted;
-    setMuted(!muted);
-  };
-
-  const handleNext = () => {
-    const index = songs.findIndex((s) => s.id === currentSong.id);
-    const next = shuffle
-      ? Math.floor(Math.random() * songs.length)
-      : (index + 1) % songs.length;
-    onSongChange(songs[next]);
-  };
-
-  const handlePrev = () => {
-    const index = songs.findIndex((s) => s.id === currentSong.id);
-    const prev = (index - 1 + songs.length) % songs.length;
-    onSongChange(songs[prev]);
-  };
 
   return (
     <div
@@ -110,8 +41,6 @@ export default function BottomPlayer({
         backdropFilter: "blur(20px)",
       }}
     >
-      <audio ref={audioRef} src={currentSong.src} />
-
       {/* ── SONG INFO ── */}
       <div className="flex items-center gap-3 flex-shrink-0" style={{ width: "260px" }}>
         <img
@@ -121,10 +50,7 @@ export default function BottomPlayer({
           style={{ boxShadow: "0 4px 15px rgba(0,0,0,0.5)" }}
         />
         <div className="min-w-0 flex-1">
-          <p
-            className="text-white text-sm font-semibold truncate"
-            style={{ fontFamily: "Figtree, sans-serif" }}
-          >
+          <p className="text-white text-sm font-semibold truncate">
             {currentSong.title}
           </p>
           <p className="text-white/40 text-xs truncate mt-0.5">
@@ -132,7 +58,7 @@ export default function BottomPlayer({
           </p>
         </div>
         <button
-          onClick={() => onToggleLike(currentSong.id)}
+          onClick={() => toggleLike(currentSong.id)}
           className="flex-shrink-0 transition-transform hover:scale-110"
         >
           <Heart
@@ -151,7 +77,7 @@ export default function BottomPlayer({
         {/* Buttons */}
         <div className="flex items-center gap-5">
           <button
-            onClick={() => setShuffle(!shuffle)}
+            onClick={toggleShuffle}
             className="transition-all hover:scale-110"
             style={{ color: shuffle ? "#a855f7" : "rgba(255,255,255,0.35)" }}
           >
@@ -167,7 +93,7 @@ export default function BottomPlayer({
           </button>
 
           <button
-            onClick={onPlayPause}
+            onClick={togglePlay}
             className="flex items-center justify-center rounded-full transition-all hover:scale-105"
             style={{
               width: "42px",
@@ -191,7 +117,7 @@ export default function BottomPlayer({
           </button>
 
           <button
-            onClick={() => setRepeat(!repeat)}
+            onClick={toggleRepeat}
             className="transition-all hover:scale-110"
             style={{ color: repeat ? "#a855f7" : "rgba(255,255,255,0.35)" }}
           >
@@ -201,7 +127,10 @@ export default function BottomPlayer({
 
         {/* Progress Bar */}
         <div className="flex items-center gap-3 w-full max-w-md">
-          <span className="text-xs flex-shrink-0" style={{ color: "rgba(255,255,255,0.3)", width: "32px", textAlign: "right" }}>
+          <span
+            className="text-xs flex-shrink-0"
+            style={{ color: "rgba(255,255,255,0.3)", width: "32px", textAlign: "right" }}
+          >
             {currentTime}
           </span>
           <div
@@ -223,7 +152,10 @@ export default function BottomPlayer({
               />
             </div>
           </div>
-          <span className="text-xs flex-shrink-0" style={{ color: "rgba(255,255,255,0.3)", width: "32px" }}>
+          <span
+            className="text-xs flex-shrink-0"
+            style={{ color: "rgba(255,255,255,0.3)", width: "32px" }}
+          >
             {duration}
           </span>
         </div>
@@ -232,14 +164,17 @@ export default function BottomPlayer({
 
       {/* ── VOLUME ── */}
       <div className="flex items-center gap-3 flex-shrink-0" style={{ width: "140px" }}>
-        <button onClick={toggleMute} className="transition hover:scale-110"
-          style={{ color: "rgba(255,255,255,0.4)" }}>
+        <button
+          onClick={() => setMuted(!muted)}
+          className="transition hover:scale-110"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
           {muted ? <VolumeX size={17} /> : <Volume2 size={17} />}
         </button>
         <input
           type="range" min="0" max="1" step="0.01"
           value={muted ? 0 : volume}
-          onChange={handleVolume}
+          onChange={(e) => handleVolume(parseFloat(e.target.value))}
           className="w-full cursor-pointer"
         />
       </div>

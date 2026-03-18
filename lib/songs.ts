@@ -20,7 +20,7 @@ export const songs: Song[] = [
     id: "2",
     title: "Can I Call You Tonight",
     artist: "Dayglow",
-    src: "/songs/can-i-call-you-tonight-official-video",
+    src: "/songs/can-i-call-you-tonight-official-video.mp3",
     cover: "/images/Dayglow.jpg",
     duration: "3:45",
   },

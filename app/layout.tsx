@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Layout from "@/components/Layout";
+import { MusicProvider } from "@/context/MusicContext";
 
 export const metadata: Metadata = {
   title: "Muse - Music Player",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Layout>{children}</Layout>
+        <MusicProvider>
+          <Layout>{children}</Layout>
+        </MusicProvider>
       </body>
     </html>
   );

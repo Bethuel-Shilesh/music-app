@@ -1,19 +1,15 @@
 "use client";
 
-import { songs, Song } from "@/lib/songs";
+import { songs } from "@/lib/songs";
 import { Home, Search, Library, Heart, Clock, ListMusic, Disc3 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useMusic } from "@/context/MusicContext";
 
-interface SidebarProps {
-  currentSong: Song;
-  isPlaying: boolean;
-  likedSongs: string[];
-  onSongSelect: (song: Song) => void;
-}
-
-export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSelect }: SidebarProps) {
+export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { currentSong, isPlaying, likedSongs, playSong } = useMusic();
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
@@ -46,10 +42,7 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
       />
 
       {/* ── LOGO ── */}
-      <div
-        className="flex-shrink-0 px-6 flex items-center gap-3"
-        style={{ height: "80px" }}
-      >
+      <div className="flex-shrink-0 px-6 flex items-center gap-3" style={{ height: "80px" }}>
         <div
           className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
           style={{
@@ -62,24 +55,16 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
         <div>
           <p
             className="text-white font-bold text-2xl tracking-wider"
-            style={{
-              fontFamily: "Playfair Display, serif",
-              textShadow: "0 0 20px rgba(167,139,250,0.4)",
-            }}
+            style={{ fontFamily: "Figtree, sans-serif", textShadow: "0 0 20px rgba(167,139,250,0.4)" }}
           >
             MUSE
           </p>
-          <p className="text-purple-400/40 text-xs tracking-widest">
-            Music Player
-          </p>
+          <p className="text-purple-400/40 text-xs tracking-widest">Music Player</p>
         </div>
       </div>
 
       {/* ── SEARCH ── */}
-      <div
-        className="flex-shrink-0 px-5"
-        style={{ marginBottom: "20px" }}
-      >
+      <div className="flex-shrink-0 px-5" style={{ marginBottom: "20px" }}>
         <div
           className="flex items-center gap-3 px-5 rounded-2xl"
           style={{
@@ -99,10 +84,7 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
       </div>
 
       {/* ── NAV GRID ── */}
-      <div
-        className="flex-shrink-0 px-5"
-        style={{ marginBottom: "16px" }}
-      >
+      <div className="flex-shrink-0 px-5" style={{ marginBottom: "16px" }}>
         <div className="grid grid-cols-3 gap-2.5">
           {navItems.map(({ href, icon: Icon, label }) => {
             const active = pathname === href;
@@ -124,24 +106,12 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center"
                     style={{
-                      background: active
-                        ? "rgba(124,58,237,0.4)"
-                        : "rgba(255,255,255,0.06)",
+                      background: active ? "rgba(124,58,237,0.4)" : "rgba(255,255,255,0.06)",
                     }}
                   >
-                    <Icon
-                      size={18}
-                      style={{
-                        color: active ? "#e9d5ff" : "rgba(255,255,255,0.35)",
-                      }}
-                    />
+                    <Icon size={18} style={{ color: active ? "#e9d5ff" : "rgba(255,255,255,0.35)" }} />
                   </div>
-                  <span
-                    className="text-xs font-medium"
-                    style={{
-                      color: active ? "#e9d5ff" : "rgba(255,255,255,0.35)",
-                    }}
-                  >
+                  <span className="text-xs font-medium" style={{ color: active ? "#e9d5ff" : "rgba(255,255,255,0.35)" }}>
                     {label}
                   </span>
                 </div>
@@ -157,16 +127,12 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
         style={{
           height: "1px",
           marginBottom: "16px",
-          background:
-            "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)",
+          background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)",
         }}
       />
 
       {/* ── LIBRARY GRID ── */}
-      <div
-        className="flex-shrink-0 px-5"
-        style={{ marginBottom: "16px" }}
-      >
+      <div className="flex-shrink-0 px-5" style={{ marginBottom: "16px" }}>
         <div className="grid grid-cols-3 gap-2.5">
           {libraryItems.map(({ icon: Icon, label, sub, color }) => (
             <div
@@ -194,16 +160,10 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
               >
                 <Icon size={18} style={{ color }} />
               </div>
-              <span
-                className="text-xs font-semibold"
-                style={{ color: "rgba(255,255,255,0.6)" }}
-              >
+              <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.6)" }}>
                 {label}
               </span>
-              <span
-                className="text-xs"
-                style={{ color: "rgba(255,255,255,0.25)" }}
-              >
+              <span className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
                 {sub}
               </span>
             </div>
@@ -217,22 +177,15 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
         style={{
           height: "1px",
           marginBottom: "16px",
-          background:
-            "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)",
+          background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)",
         }}
       />
 
       {/* ── PLAYLIST LABEL ── */}
-      <div
-        className="flex-shrink-0 px-6"
-        style={{ marginBottom: "10px" }}
-      >
+      <div className="flex-shrink-0 px-6" style={{ marginBottom: "10px" }}>
         <p
           className="text-xs font-semibold uppercase tracking-[0.2em]"
-          style={{
-            color: "rgba(167,139,250,0.35)",
-            fontFamily: "Playfair Display, serif",
-          }}
+          style={{ color: "rgba(167,139,250,0.35)", fontFamily: "Figtree, sans-serif" }}
         >
           Playlist
         </p>
@@ -245,17 +198,15 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
           return (
             <div
               key={song.id}
-              onClick={() => onSongSelect(song)}
+              onClick={() => {
+                playSong(song);
+                router.push("/now-playing");
+              }}
               className="flex items-center gap-3 px-4 rounded-2xl cursor-pointer transition-all duration-200"
               style={{
                 height: "68px",
                 background: active ? "rgba(124,58,237,0.15)" : "transparent",
-                border: active
-                  ? "1px solid rgba(124,58,237,0.3)"
-                  : "1px solid transparent",
-                boxShadow: active
-                  ? "inset 0 0 20px rgba(124,58,237,0.08)"
-                  : "none",
+                border: active ? "1px solid rgba(124,58,237,0.3)" : "1px solid transparent",
               }}
               onMouseEnter={e => {
                 if (!active) {
@@ -270,17 +221,12 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
                 }
               }}
             >
-              {/* Cover */}
               <div className="relative flex-shrink-0">
                 <img
                   src={song.cover}
                   alt={song.title}
                   className="w-11 h-11 rounded-xl object-cover"
-                  style={{
-                    boxShadow: active
-                      ? "0 0 15px rgba(124,58,237,0.5)"
-                      : "none",
-                  }}
+                  style={{ boxShadow: active ? "0 0 15px rgba(124,58,237,0.5)" : "none" }}
                 />
                 {active && isPlaying && (
                   <div
@@ -288,31 +234,18 @@ export default function Sidebar({ currentSong, isPlaying, likedSongs, onSongSele
                     style={{ background: "rgba(0,0,0,0.55)" }}
                   >
                     <div className="flex gap-0.5 items-end h-4">
-                      <div className="w-0.5 rounded-full bg-purple-400 animate-bounce"
-                        style={{ height: "6px", animationDelay: "0ms" }} />
-                      <div className="w-0.5 rounded-full bg-purple-400 animate-bounce"
-                        style={{ height: "14px", animationDelay: "150ms" }} />
-                      <div className="w-0.5 rounded-full bg-purple-400 animate-bounce"
-                        style={{ height: "10px", animationDelay: "300ms" }} />
+                      <div className="w-0.5 rounded-full bg-purple-400 animate-bounce" style={{ height: "6px", animationDelay: "0ms" }} />
+                      <div className="w-0.5 rounded-full bg-purple-400 animate-bounce" style={{ height: "14px", animationDelay: "150ms" }} />
+                      <div className="w-0.5 rounded-full bg-purple-400 animate-bounce" style={{ height: "10px", animationDelay: "300ms" }} />
                     </div>
                   </div>
                 )}
               </div>
-
-              {/* Info */}
               <div className="flex-1 min-w-0">
-                <p
-                  className="text-sm font-medium truncate"
-                  style={{
-                    color: active ? "#e9d5ff" : "rgba(255,255,255,0.6)",
-                  }}
-                >
+                <p className="text-sm font-medium truncate" style={{ color: active ? "#e9d5ff" : "rgba(255,255,255,0.6)" }}>
                   {song.title}
                 </p>
-                <p
-                  className="text-xs truncate mt-1"
-                  style={{ color: "rgba(255,255,255,0.25)" }}
-                >
+                <p className="text-xs truncate mt-1" style={{ color: "rgba(255,255,255,0.25)" }}>
                   {song.artist}
                 </p>
               </div>
