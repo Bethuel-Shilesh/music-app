@@ -1,310 +1,327 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { songs } from "@/lib/songs";
-import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, Music2 } from "lucide-react";
+import { Play, Music2, Clock } from "lucide-react";
 
 export default function Home() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState("0:00");
-  const [duration, setDuration] = useState("0:00");
-  const [volume, setVolume] = useState(1);
-  const [liked, setLiked] = useState(false);
-  const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [showList, setShowList] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const song = songs[currentSongIndex];
+  const [activeBg, setActiveBg] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const updateProgress = () => {
-      const percent = (audio.currentTime / audio.duration) * 100;
-      setProgress(isNaN(percent) ? 0 : percent);
-      setCurrentTime(formatTime(audio.currentTime));
-      setDuration(formatTime(audio.duration));
-    };
-    audio.addEventListener("timeupdate", updateProgress);
-    return () => audio.removeEventListener("timeupdate", updateProgress);
-  }, [currentSongIndex]);
+    setMounted(true);
+    const interval = setInterval(() => {
+      setActiveBg((prev) => (prev + 1) % songs.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00";
-    const mins = Math.floor(time / 60);
-    const secs = Math.floor(time % 60).toString().padStart(2, "0");
-    return `${mins}:${secs}`;
+  const greeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
   };
 
-  const togglePlay = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (isPlaying) { audio.pause(); } else { audio.play(); }
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const bar = e.currentTarget;
-    const clickX = e.clientX - bar.getBoundingClientRect().left;
-    const newTime = (clickX / bar.offsetWidth) * audio.duration;
-    audio.currentTime = newTime;
-  };
-
-  const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    setVolume(val);
-    if (audioRef.current) audioRef.current.volume = val;
-  };
-
-  const handleNext = () => {
-    const next = (currentSongIndex + 1) % songs.length;
-    setCurrentSongIndex(next);
-    setIsPlaying(false);
-    setProgress(0);
-  };
-
-  const handlePrev = () => {
-    const prev = (currentSongIndex - 1 + songs.length) % songs.length;
-    setCurrentSongIndex(prev);
-    setIsPlaying(false);
-    setProgress(0);
-  };
-
-  const selectSong = (index: number) => {
-    setCurrentSongIndex(index);
-    setIsPlaying(false);
-    setProgress(0);
-    setShowList(false);
-  };
+  if (!mounted) return null;
 
   return (
-    <main className="h-screen w-screen bg-[#0a0a0a] flex overflow-hidden">
-      <audio ref={audioRef} src={song.src} />
+    <div className="h-full overflow-y-auto" style={{ background: "#080808" }}>
 
-      {/* ── SIDEBAR (desktop only) ── */}
-      <div className="hidden md:flex w-80 h-full bg-[#0f0f0f] border-r border-purple-900/30 flex-col p-6 gap-6">
+      {/* ── HERO SECTION ── */}
+      <div className="relative w-full" style={{ height: "400px" }}>
 
-        {/* Logo */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-sm">
-            🎵
-          </div>
-          <span className="text-white font-bold text-lg tracking-widest uppercase">Muse</span>
-        </div>
-
-        <p className="text-purple-400 text-xs font-semibold uppercase tracking-widest">
-          Your Library
-        </p>
-
-        <div className="flex flex-col gap-2 overflow-y-auto flex-1">
-          {songs.map((s, index) => (
+        {/* Blurred backgrounds */}
+        {songs.map((song, index) => (
+          <div
+            key={song.id}
+            className="absolute inset-0 transition-opacity duration-1000"
+            style={{ opacity: activeBg === index ? 1 : 0 }}
+          >
             <div
-              key={s.id}
-              onClick={() => selectSong(index)}
-              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300
-                ${currentSongIndex === index
-                  ? "bg-purple-900/40 border border-purple-600/40"
-                  : "hover:bg-white/5 border border-transparent"
-                }`}
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url(${song.cover})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                filter: "blur(60px)",
+                transform: "scale(1.4)",
+                opacity: 0.4,
+              }}
+            />
+          </div>
+        ))}
+
+        {/* Overlays */}
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(180deg, rgba(8,8,8,0.3) 0%, rgba(8,8,8,0.6) 60%, rgba(8,8,8,1) 100%)",
+        }} />
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(90deg, rgba(8,8,8,0.7) 0%, transparent 100%)",
+        }} />
+
+        {/* Hero Content */}
+        <div className="absolute inset-0 flex items-center" style={{ paddingLeft: "48px", paddingRight: "48px" }}>
+          <div className="flex items-center gap-10 w-full">
+
+            {/* Album Art */}
+            <div
+              className="flex-shrink-0 relative"
+              style={{
+                width: "200px",
+                height: "200px",
+                borderRadius: "24px",
+                overflow: "hidden",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(124,58,237,0.3)",
+              }}
             >
-              <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                <img src={s.cover} alt={s.title} className="w-full h-full object-cover" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold truncate ${
-                  currentSongIndex === index ? "text-purple-300" : "text-white"
-                }`}>{s.title}</p>
-                <p className="text-xs text-zinc-500 truncate">{s.artist}</p>
-              </div>
-              {currentSongIndex === index && isPlaying && (
-                <div className="flex gap-0.5 items-end h-4">
-                  <div className="w-0.5 bg-purple-400 animate-bounce h-2" style={{ animationDelay: "0ms" }} />
-                  <div className="w-0.5 bg-purple-400 animate-bounce h-4" style={{ animationDelay: "150ms" }} />
-                  <div className="w-0.5 bg-purple-400 animate-bounce h-3" style={{ animationDelay: "300ms" }} />
-                </div>
-              )}
+              {songs.map((song, index) => (
+                <img
+                  key={song.id}
+                  src={song.cover}
+                  alt={song.title}
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+                  style={{ opacity: activeBg === index ? 1 : 0 }}
+                />
+              ))}
             </div>
-          ))}
+
+            {/* Text */}
+            <div className="flex-1 min-w-0">
+              <p
+                className="text-xs uppercase tracking-[0.25em] mb-4"
+                style={{ color: "rgba(167,139,250,0.7)" }}
+              >
+                ✦ {greeting()}
+              </p>
+
+              {/* Song title */}
+              <div className="relative mb-2" style={{ height: "72px" }}>
+                {songs.map((song, index) => (
+                  <h1
+                    key={song.id}
+                    className="absolute top-0 left-0 font-bold transition-all duration-700"
+                    style={{
+                      fontSize: "clamp(1.8rem, 3vw, 2.8rem)",
+                      color: "white",
+                      opacity: activeBg === index ? 1 : 0,
+                      transform: activeBg === index ? "translateY(0)" : "translateY(12px)",
+                      fontFamily: "Figtree, sans-serif",
+                      fontWeight: 800,
+                      lineHeight: 1.1,
+                      textShadow: "0 0 40px rgba(167,139,250,0.3)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      maxWidth: "100%",
+                    }}
+                  >
+                    {song.title}
+                  </h1>
+                ))}
+              </div>
+
+              {/* Artist */}
+              <div className="relative" style={{ height: "28px" }}>
+                {songs.map((song, index) => (
+                  <p
+                    key={song.id}
+                    className="absolute top-0 left-0 transition-all duration-700"
+                    style={{
+                      color: "rgba(255,255,255,0.45)",
+                      fontSize: "16px",
+                      opacity: activeBg === index ? 1 : 0,
+                      transform: activeBg === index ? "translateY(0)" : "translateY(8px)",
+                    }}
+                  >
+                    {song.artist}
+                  </p>
+                ))}
+              </div>
+
+              {/* Play button */}
+              <button
+                className="mt-7 flex items-center gap-3 px-8 py-3 rounded-full font-semibold text-sm transition-all duration-200 hover:scale-105"
+                style={{
+                  background: "linear-gradient(135deg, #7c3aed, #a855f7)",
+                  color: "white",
+                  boxShadow: "0 0 30px rgba(124,58,237,0.5)",
+                }}
+              >
+                <Play size={16} fill="white" />
+                Play Now
+              </button>
+            </div>
+
+            {/* Dot indicators */}
+            <div className="flex flex-col gap-2.5 flex-shrink-0">
+              {songs.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveBg(index)}
+                  className="rounded-full transition-all duration-300"
+                  style={{
+                    width: "6px",
+                    height: activeBg === index ? "24px" : "6px",
+                    background: activeBg === index
+                      ? "linear-gradient(180deg, #7c3aed, #a855f7)"
+                      : "rgba(255,255,255,0.2)",
+                    boxShadow: activeBg === index ? "0 0 10px rgba(124,58,237,0.6)" : "none",
+                  }}
+                />
+              ))}
+            </div>
+
+          </div>
         </div>
       </div>
 
-      {/* ── MAIN PLAYER ── */}
-      <div className="flex-1 h-full flex flex-col items-center justify-center gap-6 md:gap-8 relative overflow-hidden px-4">
+      {/* ── MAIN CONTENT ── */}
+      <div style={{ padding: "32px 48px 40px 48px" }} className="flex flex-col gap-10">
 
-        {/* Background glow */}
-        <div className="absolute w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none"
-          style={{ background: "radial-gradient(circle, #7c3aed, transparent)" }} />
-
-        {/* Mobile top bar */}
-        <div className="md:hidden w-full flex items-center justify-between pt-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs">🎵</div>
-            <span className="text-white font-bold tracking-widest uppercase text-sm">Muse</span>
-          </div>
-          <button
-            onClick={() => setShowList(!showList)}
-            className="text-purple-400 hover:text-white transition"
+        {/* ── TODAY'S RECOMMENDATION ── */}
+        <section>
+          <h2
+            className="text-white text-xl font-bold mb-5"
+            style={{ fontFamily: "Figtree, sans-serif" }}
           >
-            <Music2 size={22} />
-          </button>
-        </div>
+            Today's Recommendation 🎯
+          </h2>
 
-        {/* Mobile song list dropdown */}
-        {showList && (
-          <div className="md:hidden w-full bg-[#0f0f0f] border border-purple-900/30 rounded-2xl p-4 flex flex-col gap-2 z-10">
-            {songs.map((s, index) => (
+          <div className="grid grid-cols-2 gap-4">
+            {songs.slice(0, 2).map((song) => (
               <div
-                key={s.id}
-                onClick={() => selectSong(index)}
-                className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all
-                  ${currentSongIndex === index
-                    ? "bg-purple-900/40 border border-purple-600/40"
-                    : "hover:bg-white/5 border border-transparent"
-                  }`}
+                key={song.id}
+                className="flex items-center gap-4 p-5 rounded-2xl cursor-pointer transition-all duration-300 group"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.12)";
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.3)";
+                  (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)";
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)";
+                  (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
+                }}
               >
-                <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
-                  <img src={s.cover} alt={s.title} className="w-full h-full object-cover" />
-                </div>
+                <img
+                  src={song.cover}
+                  alt={song.title}
+                  className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
+                  style={{ boxShadow: "0 4px 15px rgba(0,0,0,0.4)" }}
+                />
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-semibold truncate ${
-                    currentSongIndex === index ? "text-purple-300" : "text-white"
-                  }`}>{s.title}</p>
-                  <p className="text-xs text-zinc-500 truncate">{s.artist}</p>
+                  <p className="text-white text-sm font-semibold truncate">{song.title}</p>
+                  <p className="text-white/40 text-xs mt-1.5 truncate">{song.artist}</p>
+                </div>
+                <div
+                  className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                  style={{
+                    background: "linear-gradient(135deg, #7c3aed, #a855f7)",
+                    boxShadow: "0 0 20px rgba(124,58,237,0.5)",
+                  }}
+                >
+                  <Play size={15} fill="white" className="text-white ml-0.5" />
                 </div>
               </div>
             ))}
           </div>
-        )}
+        </section>
 
-        {/* ── TURNTABLE ── */}
-        <div className="relative w-56 h-56 md:w-72 md:h-72">
+        {/* ── ALL SONGS ── */}
+        <section>
+          <div className="flex items-center gap-3 mb-5">
+            <Music2 size={18} className="text-purple-400" />
+            <h2 className="text-white text-xl font-bold">All Songs</h2>
+          </div>
 
-          {/* Base plate */}
-          <div className="absolute inset-0 rounded-full bg-[#1a1a1a] border-4 border-[#2a2a2a]"
-            style={{ boxShadow: "0 0 60px rgba(124,58,237,0.3), inset 0 0 30px rgba(0,0,0,0.8)" }} />
-
-          {/* Groove rings */}
-          <div className="absolute inset-4 rounded-full border border-[#2e2e2e]" />
-          <div className="absolute inset-8 rounded-full border border-[#2e2e2e]" />
-          <div className="absolute inset-12 rounded-full border border-[#2a2a2a]" />
-
-          {/* Vinyl */}
           <div
-            className={`absolute inset-6 rounded-full overflow-hidden ${isPlaying ? "animate-spin" : ""}`}
+            className="rounded-2xl overflow-hidden"
             style={{
-              animationDuration: "6s",
-              boxShadow: isPlaying ? "0 0 30px rgba(124,58,237,0.6)" : "none",
-              transition: "box-shadow 0.5s ease"
+              background: "rgba(255,255,255,0.02)",
+              border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            <img src={song.cover} alt={song.title} className="w-full h-full object-cover rounded-full" />
-            <div className="absolute inset-0 rounded-full"
-              style={{ background: "radial-gradient(circle, transparent 20%, rgba(0,0,0,0.5) 70%)" }} />
-          </div>
-
-          {/* Center hole */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-6 h-6 rounded-full bg-[#0a0a0a] border-2 border-purple-800/60 z-10" />
-          </div>
-
-          {/* Tonearm */}
-          <div className="absolute z-20" style={{ top: "-10px", right: "-10px" }}>
-            <div className="w-5 h-5 rounded-full bg-[#333] border-2 border-purple-700/60 shadow-lg" />
+            {/* Header */}
             <div
-              style={{
-                position: "absolute",
-                top: "10px",
-                left: "10px",
-                width: "6px",
-                height: "110px",
-                transformOrigin: "top center",
-                transform: isPlaying ? "rotate(28deg)" : "rotate(5deg)",
-                transition: "transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
+              className="grid grid-cols-12 px-8 py-4"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
             >
-              <div className="w-full rounded-full"
+              <div className="col-span-1 text-xs uppercase tracking-widest"
+                style={{ color: "rgba(255,255,255,0.2)" }}>#</div>
+              <div className="col-span-5 text-xs uppercase tracking-widest"
+                style={{ color: "rgba(255,255,255,0.2)" }}>Title</div>
+              <div className="col-span-4 text-xs uppercase tracking-widest"
+                style={{ color: "rgba(255,255,255,0.2)" }}>Artist</div>
+              <div className="col-span-2 flex justify-end"
+                style={{ color: "rgba(255,255,255,0.2)" }}>
+                <Clock size={13} />
+              </div>
+            </div>
+
+            {/* Rows */}
+            {songs.map((song, index) => (
+              <div
+                key={song.id}
+                className="grid grid-cols-12 px-8 py-5 cursor-pointer transition-all duration-200 group items-center"
                 style={{
-                  height: "85px",
-                  background: "linear-gradient(180deg, #888 0%, #555 100%)",
-                  boxShadow: "0 0 8px rgba(124,58,237,0.4)",
-                }} />
-              <div style={{
-                width: "18px", height: "5px", background: "#666",
-                borderRadius: "3px", marginTop: "-2px", marginLeft: "-6px",
-                transform: "rotate(-20deg)",
-                boxShadow: "0 0 6px rgba(124,58,237,0.3)",
-              }} />
-              <div style={{
-                width: "8px", height: "14px",
-                background: "linear-gradient(180deg, #aaa 0%, #444 100%)",
-                borderRadius: "0 0 4px 4px",
-                marginTop: "2px", marginLeft: "-1px",
-                boxShadow: isPlaying ? "0 4px 10px rgba(167,139,250,0.8)" : "none",
-                transition: "box-shadow 0.5s ease",
-              }} />
-            </div>
-          </div>
-        </div>
+                  borderBottom: index < songs.length - 1
+                    ? "1px solid rgba(255,255,255,0.03)"
+                    : "none",
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.08)";
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.background = "transparent";
+                }}
+              >
+                <div className="col-span-1">
+                  <span className="text-sm group-hover:hidden"
+                    style={{ color: "rgba(255,255,255,0.3)" }}>
+                    {index + 1}
+                  </span>
+                  <Play size={14} fill="white" className="text-white hidden group-hover:block" />
+                </div>
 
-        {/* Song Info */}
-        <div className="flex items-center gap-4">
-          <div className="text-center">
-            <h1 className="text-white text-xl md:text-2xl font-bold tracking-wide">{song.title}</h1>
-            <p className="text-purple-400 text-sm mt-1">{song.artist}</p>
-          </div>
-          <button onClick={() => setLiked(!liked)} className="ml-4 transition-transform hover:scale-110">
-            <Heart size={22} className={liked ? "fill-purple-500 text-purple-500" : "text-zinc-600"} />
-          </button>
-        </div>
+                <div className="col-span-5 flex items-center gap-4">
+                  <img
+                    src={song.cover}
+                    alt={song.title}
+                    className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+                    style={{ boxShadow: "0 4px 15px rgba(0,0,0,0.3)" }}
+                  />
+                  <p
+                    className="text-sm font-semibold truncate group-hover:text-purple-300 transition-colors"
+                    style={{ color: "rgba(255,255,255,0.85)" }}
+                  >
+                    {song.title}
+                  </p>
+                </div>
 
-        {/* Progress Bar */}
-        <div className="w-full max-w-sm md:max-w-md flex flex-col gap-2">
-          <div
-            className="w-full h-1.5 bg-zinc-800 rounded-full cursor-pointer relative group"
-            onClick={handleProgressClick}
-          >
-            <div
-              className="h-1.5 bg-purple-500 rounded-full transition-all relative"
-              style={{ width: `${progress}%` }}
-            >
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition" />
-            </div>
-          </div>
-          <div className="flex justify-between text-zinc-500 text-xs">
-            <span>{currentTime}</span>
-            <span>{duration}</span>
-          </div>
-        </div>
+                <div className="col-span-4">
+                  <p className="text-sm truncate"
+                    style={{ color: "rgba(255,255,255,0.35)" }}>
+                    {song.artist}
+                  </p>
+                </div>
 
-        {/* Controls */}
-        <div className="flex items-center gap-6 md:gap-8">
-          <button onClick={handlePrev} className="text-zinc-400 hover:text-white transition hover:scale-110 transform">
-            <SkipBack size={24} />
-          </button>
-          <button
-            onClick={togglePlay}
-            className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-purple-600 hover:bg-purple-500 flex items-center justify-center text-white transition-all hover:scale-105 glow-purple"
-          >
-            {isPlaying ? <Pause size={24} /> : <Play size={24} fill="white" />}
-          </button>
-          <button onClick={handleNext} className="text-zinc-400 hover:text-white transition hover:scale-110 transform">
-            <SkipForward size={24} />
-          </button>
-        </div>
-
-        {/* Volume */}
-        <div className="flex items-center gap-3 w-40 md:w-48">
-          <Volume2 size={16} className="text-zinc-500" />
-          <input
-            type="range" min="0" max="1" step="0.01" value={volume}
-            onChange={handleVolume}
-            className="w-full accent-purple-500 cursor-pointer"
-          />
-        </div>
+                <div className="col-span-2 flex justify-end">
+                  <p className="text-sm"
+                    style={{ color: "rgba(255,255,255,0.25)" }}>
+                    {song.duration}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
       </div>
-    </main>
+    </div>
   );
 }
