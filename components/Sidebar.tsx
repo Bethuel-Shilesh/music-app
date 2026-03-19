@@ -64,8 +64,8 @@ export default function Sidebar() {
       </div>
     
       {/* ── NAV GRID ── */}
-      <div className="flex-shrink-0 px-5" style={{ marginBottom: "16px" }}>
-        <div className="grid grid-cols-3 gap-2.5">
+      <div className="flex-shrink-0 px-5" style={{ marginBottom: "20px" }}>
+        <div className="grid grid-cols-3 gap-2">
           {navItems.map(({ href, icon: Icon, label }) => {
             const active = pathname === href;
             return (
@@ -73,7 +73,7 @@ export default function Sidebar() {
                 <div
                   className="flex flex-col items-center justify-center gap-2 rounded-2xl cursor-pointer transition-all duration-300"
                   style={{
-                    height: "90px",
+                    height: "100px",
                     background: active
                       ? "linear-gradient(135deg, rgba(124,58,237,0.35), rgba(168,85,247,0.15))"
                       : "rgba(255,255,255,0.03)",
@@ -106,20 +106,20 @@ export default function Sidebar() {
         className="flex-shrink-0 mx-5"
         style={{
           height: "1px",
-          marginBottom: "16px",
+          marginBottom: "20px",
           background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)",
         }}
       />
 
       {/* ── LIBRARY GRID ── */}
-      <div className="flex-shrink-0 px-5" style={{ marginBottom: "16px" }}>
-        <div className="grid grid-cols-3 gap-2.5">
+      <div className="flex-shrink-0 px-5" style={{ marginBottom: "20px" }}>
+        <div className="grid grid-cols-3 gap-2">
           {libraryItems.map(({ icon: Icon, label, sub, color }) => (
             <div
               key={label}
               className="flex flex-col items-center justify-center gap-2 rounded-2xl cursor-pointer transition-all duration-300"
               style={{
-                height: "90px",
+                height: "100px",
                 background: "rgba(255,255,255,0.03)",
                 border: "1px solid rgba(255,255,255,0.06)",
               }}
@@ -140,10 +140,10 @@ export default function Sidebar() {
               >
                 <Icon size={18} style={{ color }} />
               </div>
-              <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.6)" }}>
+              <span className="text-xs font-semibold text-center px-1" style={{ color: "rgba(255,255,255,0.6)" }}>
                 {label}
               </span>
-              <span className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
+              <span className="text-xs text-center px-1" style={{ color: "rgba(255,255,255,0.25)" }}>
                 {sub}
               </span>
             </div>
@@ -156,7 +156,7 @@ export default function Sidebar() {
         className="flex-shrink-0 mx-5"
         style={{
           height: "1px",
-          marginBottom: "16px",
+          marginBottom: "20px",
           background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)",
         }}
       />

@@ -30,7 +30,7 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    <div className="h-full overflow-y-auto" style={{ background: "#080808" }}>
+    <div className="h-full overflow-y-auto overflow-x-hidden" style={{ background: "#080808" }}>
 
       {/* ── TOP SEARCH BAR ── */}
       <div
@@ -205,7 +205,7 @@ export default function Home() {
                   playSong(songs[activeBg]);
                   router.push("/now-playing");
                 }}
-                className="mt-7 flex items-center gap-3 px-8 py-3 rounded-full font-semibold text-sm transition-all duration-200 hover:scale-105"
+                className="mt-7 flex items-center gap-2 px-5 py-3 rounded-full font-semibold text-sm transition-all duration-200 hover:scale-105 whitespace-nowrap"
                 style={{
                   background: "linear-gradient(135deg, #7c3aed, #a855f7)",
                   color: "white",
