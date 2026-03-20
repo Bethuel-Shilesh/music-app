@@ -2,6 +2,7 @@
 
 import Sidebar from "./Sidebar";
 import BottomPlayer from "./BottomPlayer";
+import TopBar from "./TopBar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,10 +12,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Sidebar */}
         <Sidebar />
 
-        {/* Main content */}
-        <main className="flex-1 overflow-hidden bg-[#080808]">
-          {children}
-        </main>
+        {/* Main content with TopBar */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <TopBar />
+          <main className="flex-1 overflow-hidden bg-[#080808]">
+            {children}
+          </main>
+        </div>
 
       </div>
 

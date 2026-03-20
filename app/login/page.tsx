@@ -18,15 +18,39 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    // Simulate login for now (we'll connect to backend later)
-    setTimeout(() => {
-      if (email && password) {
-        router.push("/");
-      } else {
-        setError("Please fill in all fields");
-      }
+    if (!email || !password) {
+      setError("Please fill in all fields");
       setLoading(false);
-    }, 1500);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong");
+        setLoading(false);
+        return;
+      }
+
+      // Save token and user to localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Force page reload to update auth state
+      window.location.href = "/";
+
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

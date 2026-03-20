@@ -62,7 +62,7 @@ export default function Sidebar() {
           <p className="text-purple-400/40 text-xs tracking-widest">Music Player</p>
         </div>
       </div>
-    
+
       {/* ── NAV GRID ── */}
       <div className="flex-shrink-0 px-5" style={{ marginBottom: "20px" }}>
         <div className="grid grid-cols-3 gap-2">
@@ -114,10 +114,11 @@ export default function Sidebar() {
       {/* ── LIBRARY GRID ── */}
       <div className="flex-shrink-0 px-5" style={{ marginBottom: "20px" }}>
         <div className="grid grid-cols-3 gap-2">
-          {libraryItems.map(({ icon: Icon, label, sub, color }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center justify-center gap-2 rounded-2xl cursor-pointer transition-all duration-300"
+          {libraryItems.map(({ icon: Icon, label, sub, color, href }) => (
+          <div
+            key={label}
+            onClick={() => router.push(href)}
+            className="flex flex-col items-center justify-center gap-2 rounded-2xl cursor-pointer transition-all duration-300"
               style={{
                 height: "100px",
                 background: "rgba(255,255,255,0.03)",

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Layout from "@/components/Layout";
 import { MusicProvider } from "@/context/MusicContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "Muse - Music Player",
@@ -16,9 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <MusicProvider>
-          <Layout>{children}</Layout>
-        </MusicProvider>
+        <AuthProvider>
+          <MusicProvider>
+            <Layout>{children}</Layout>
+          </MusicProvider>
+        </AuthProvider>
       </body>
     </html>
   );

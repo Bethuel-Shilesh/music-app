@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { songs } from "@/lib/songs";
-import { Play, Music2, Clock, Search } from "lucide-react";
+import { Play, Music2, Clock } from "lucide-react";
 import { useMusic } from "@/context/MusicContext";
 
 export default function Home() {
@@ -32,63 +32,9 @@ export default function Home() {
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden" style={{ background: "#080808" }}>
 
-      {/* ── TOP SEARCH BAR ── */}
-      <div
-        className="sticky top-0 z-50"
-        style={{
-          padding: "16px 48px",
-          background: "rgba(8,8,8,0.85)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
-        }}
-      >
-        <div
-          onClick={() => router.push("/search")}
-          className="flex items-center gap-4 px-6 rounded-2xl cursor-pointer transition-all duration-300"
-          style={{
-            height: "52px",
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            maxWidth: "560px",
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.12)";
-            (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.4)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 0 30px rgba(124,58,237,0.15)";
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
-            (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "none";
-          }}
-        >
-          <Search size={18} style={{ color: "rgba(167,139,250,0.6)" }} className="flex-shrink-0" />
-          <span
-            className="flex-1 text-sm"
-            style={{
-              color: "rgba(255,255,255,0.25)",
-              fontFamily: "Figtree, sans-serif",
-            }}
-          >
-            Search songs, artists...
-          </span>
-          <div
-            className="px-3 py-1 rounded-lg text-xs flex-shrink-0"
-            style={{
-              background: "rgba(124,58,237,0.2)",
-              color: "rgba(167,139,250,0.7)",
-              border: "1px solid rgba(124,58,237,0.3)",
-            }}
-          >
-            Search
-          </div>
-        </div>
-      </div>
-
       {/* ── HERO SECTION ── */}
       <div className="relative w-full" style={{ height: "380px" }}>
 
-        {/* Blurred backgrounds */}
         {songs.map((song, index) => (
           <div
             key={song.id}
@@ -109,7 +55,6 @@ export default function Home() {
           </div>
         ))}
 
-        {/* Overlays */}
         <div className="absolute inset-0" style={{
           background: "linear-gradient(180deg, rgba(8,8,8,0.3) 0%, rgba(8,8,8,0.6) 60%, rgba(8,8,8,1) 100%)",
         }} />
@@ -117,11 +62,7 @@ export default function Home() {
           background: "linear-gradient(90deg, rgba(8,8,8,0.7) 0%, transparent 100%)",
         }} />
 
-        {/* Hero Content */}
-        <div
-          className="absolute inset-0 flex items-center"
-          style={{ paddingLeft: "48px", paddingRight: "48px" }}
-        >
+        <div className="absolute inset-0 flex items-center" style={{ paddingLeft: "48px", paddingRight: "48px" }}>
           <div className="flex items-center gap-10 w-full">
 
             {/* Album Art */}
@@ -148,14 +89,10 @@ export default function Home() {
 
             {/* Text */}
             <div className="flex-1 min-w-0">
-              <p
-                className="text-xs uppercase tracking-[0.25em] mb-4"
-                style={{ color: "rgba(167,139,250,0.7)" }}
-              >
+              <p className="text-xs uppercase tracking-[0.25em] mb-4" style={{ color: "rgba(167,139,250,0.7)" }}>
                 ✦ {greeting()}
               </p>
 
-              {/* Song title */}
               <div className="relative mb-2" style={{ height: "72px" }}>
                 {songs.map((song, index) => (
                   <h1
@@ -181,7 +118,6 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Artist */}
               <div className="relative" style={{ height: "28px" }}>
                 {songs.map((song, index) => (
                   <p
@@ -199,7 +135,6 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Play button */}
               <button
                 onClick={() => {
                   playSong(songs[activeBg]);
@@ -243,15 +178,11 @@ export default function Home() {
       {/* ── MAIN CONTENT ── */}
       <div style={{ padding: "32px 48px 40px 48px" }} className="flex flex-col gap-10">
 
-        {/* ── TODAY'S RECOMMENDATION ── */}
+        {/* Today's Recommendation */}
         <section>
-          <h2
-            className="text-white text-xl font-bold mb-5"
-            style={{ fontFamily: "Figtree, sans-serif" }}
-          >
+          <h2 className="text-white text-xl font-bold mb-5" style={{ fontFamily: "Figtree, sans-serif" }}>
             Today's Recommendation 🎯
           </h2>
-
           <div className="grid grid-cols-2 gap-4">
             {songs.slice(0, 2).map((song) => (
               <div
@@ -300,7 +231,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── ALL SONGS ── */}
+        {/* All Songs */}
         <section>
           <div className="flex items-center gap-3 mb-5">
             <Music2 size={18} className="text-purple-400" />
@@ -314,24 +245,18 @@ export default function Home() {
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            {/* Header */}
             <div
               className="grid grid-cols-12 px-8 py-4"
               style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
             >
-              <div className="col-span-1 text-xs uppercase tracking-widest"
-                style={{ color: "rgba(255,255,255,0.2)" }}>#</div>
-              <div className="col-span-5 text-xs uppercase tracking-widest"
-                style={{ color: "rgba(255,255,255,0.2)" }}>Title</div>
-              <div className="col-span-4 text-xs uppercase tracking-widest"
-                style={{ color: "rgba(255,255,255,0.2)" }}>Artist</div>
-              <div className="col-span-2 flex justify-end"
-                style={{ color: "rgba(255,255,255,0.2)" }}>
+              <div className="col-span-1 text-xs uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.2)" }}>#</div>
+              <div className="col-span-5 text-xs uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.2)" }}>Title</div>
+              <div className="col-span-4 text-xs uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.2)" }}>Artist</div>
+              <div className="col-span-2 flex justify-end" style={{ color: "rgba(255,255,255,0.2)" }}>
                 <Clock size={13} />
               </div>
             </div>
 
-            {/* Rows */}
             {songs.map((song, index) => (
               <div
                 key={song.id}
@@ -340,53 +265,25 @@ export default function Home() {
                   router.push("/now-playing");
                 }}
                 className="grid grid-cols-12 px-8 py-5 cursor-pointer transition-all duration-200 group items-center"
-                style={{
-                  borderBottom: index < songs.length - 1
-                    ? "1px solid rgba(255,255,255,0.03)"
-                    : "none",
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.08)";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = "transparent";
-                }}
+                style={{ borderBottom: index < songs.length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.08)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
               >
                 <div className="col-span-1">
-                  <span className="text-sm group-hover:hidden"
-                    style={{ color: "rgba(255,255,255,0.3)" }}>
-                    {index + 1}
-                  </span>
+                  <span className="text-sm group-hover:hidden" style={{ color: "rgba(255,255,255,0.3)" }}>{index + 1}</span>
                   <Play size={14} fill="white" className="text-white hidden group-hover:block" />
                 </div>
-
                 <div className="col-span-5 flex items-center gap-4">
-                  <img
-                    src={song.cover}
-                    alt={song.title}
-                    className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
-                    style={{ boxShadow: "0 4px 15px rgba(0,0,0,0.3)" }}
-                  />
-                  <p
-                    className="text-sm font-semibold truncate group-hover:text-purple-300 transition-colors"
-                    style={{ color: "rgba(255,255,255,0.85)" }}
-                  >
+                  <img src={song.cover} alt={song.title} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" style={{ boxShadow: "0 4px 15px rgba(0,0,0,0.3)" }} />
+                  <p className="text-sm font-semibold truncate group-hover:text-purple-300 transition-colors" style={{ color: "rgba(255,255,255,0.85)" }}>
                     {song.title}
                   </p>
                 </div>
-
                 <div className="col-span-4">
-                  <p className="text-sm truncate"
-                    style={{ color: "rgba(255,255,255,0.35)" }}>
-                    {song.artist}
-                  </p>
+                  <p className="text-sm truncate" style={{ color: "rgba(255,255,255,0.35)" }}>{song.artist}</p>
                 </div>
-
                 <div className="col-span-2 flex justify-end">
-                  <p className="text-sm"
-                    style={{ color: "rgba(255,255,255,0.25)" }}>
-                    {song.duration}
-                  </p>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.25)" }}>{song.duration}</p>
                 </div>
               </div>
             ))}
