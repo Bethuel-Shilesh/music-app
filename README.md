@@ -1,81 +1,72 @@
-# 🧺 Laundry Connect  
-### 🚀 Your Laundry, Our Priority  
+# 🎵 Muse — Modern Music Player  
+### 🚀 Your Music, Your Vibe  
 
-A **full-stack smart laundry marketplace** that seamlessly connects customers with nearby laundry service providers.  
-Users can discover, book, and track laundry services, while shop owners and admins manage operations through dedicated dashboards.
+A **full-stack modern music player web app** inspired by Spotify, featuring a **vintage vinyl turntable animation**, dynamic UI, and a premium dark theme with purple accents.  
+Built to deliver an immersive and interactive music experience.
+
+---
+
+## 🚧 Project Status: Work in Progress
+Frontend UI is fully completed. Backend development, authentication, and deployment are currently in progress.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### 👨‍💻 Core Technologies
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=jsonwebtokens)
-![bcrypt](https://img.shields.io/badge/bcrypt-grey?style=for-the-badge)
-![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas)
-![Plotly](https://img.shields.io/badge/Plotly-3F4F75?style=for-the-badge&logo=plotly)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 ---
 
 ## ✨ Features
 
-### 👤 Customers
-- 🔍 Discover nearby laundry services  
-- 📦 Book orders with pickup & delivery scheduling  
-- 📊 Track order status *(Pending → Washing → Delivered)*  
-- ⭐ Rate and review services  
+### 🎵 Music Player
+- ▶️ Play / Pause / Next / Previous controls  
+- 🎛️ Vintage vinyl turntable with tonearm animation  
+- 🔀 Shuffle and 🔁 Repeat modes  
+- 🔊 Volume control with mute toggle  
+- ⏱️ Interactive progress bar with seek  
 
-### 🏪 Shop Owners
-- 📝 Register and manage laundry services  
-- 💰 Set pricing and handle incoming orders  
-- 📈 Monitor revenue and performance analytics  
-
-### 👑 Admin Panel
-- ✅ Approve or reject shop registrations  
-- 👥 Manage users and platform activity  
-- 📊 View system-wide analytics and insights  
+### 📄 Pages
+- 🏠 **Home** — Dynamic hero section & recommendations  
+- 💿 **Now Playing** — Full-screen immersive player  
+- 🔍 **Search** — Real-time song search & genre browsing  
+- 📚 **Library** — Liked songs, history, and queue  
+- 🔐 **Auth** — Login & Signup system  
 
 ---
 
-## 🗄️ Database Schema
-`users` · `laundry_shops` · `services` · `orders` · `reviews` · `payments`
+## 🗄️ Database Schema *(Planned)*
+`users` · `songs` · `liked_songs` · `playlists`
 
 ---
 
-## 🔌 API Endpoints
+## 🔌 API Endpoints *(Planned)*
 
-### 🔐 Auth
-- `POST /auth/register`
-- `POST /auth/login`
+### 🔐 Authentication
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
 
-### 🏪 Shops & Services
-- `GET /shops/`
-- `POST /shops/`
-- `PUT /shops/{id}`
-- `POST /services/`
+### 🎵 Songs
+- `GET /api/songs`
+- `GET /api/songs/:id`
 
-### 📦 Orders
-- `POST /orders/`
-- `PUT /orders/{id}/status`
-
-### ⭐ Reviews & Payments
-- `POST /reviews/`
-- `POST /payments/`
-
-### 👑 Admin
-- `GET /admin/stats`
-- `PUT /admin/shops/{id}/approve`
+### ❤️ Liked Songs
+- `POST /api/likes/:songId`
+- `DELETE /api/likes/:songId`
+- `GET /api/likes`
 
 ---
 
 ## 🚀 Run Locally
 
 ```bash
-cd backend
-python -m venv env
-env\Scripts\activate
-pip install fastapi uvicorn sqlalchemy psycopg2-binary passlib python-jose python-multipart python-dotenv bcrypt "pydantic[email]"
-uvicorn laundry.main:app --reload
+git clone https://github.com/YOUR_USERNAME/music-app.git
+cd music-app
+npm install
+npm run dev
