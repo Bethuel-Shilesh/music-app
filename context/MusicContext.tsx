@@ -22,6 +22,7 @@ interface MusicContextType {
   handleVolume: (val: number) => void;
   toggleShuffle: () => void;
   toggleRepeat: () => void;
+  loadUserData: () => void;
 }
 
 const MusicContext = createContext<MusicContextType | null>(null);
@@ -37,6 +38,28 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Load user data when app starts
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch("/api/user/likes", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLikedSongs(data.likedSongs);
+      }
+    } catch (err) {
+      console.error("Failed to load liked songs");
+    }
+  };
 
   useEffect(() => {
     audioRef.current = new Audio(currentSong.src);
@@ -88,12 +111,32 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
   const togglePlay = () => setIsPlaying((prev) => !prev);
 
-  const toggleLike = (songId: string) => {
-    setLikedSongs((prev) =>
-      prev.includes(songId)
-        ? prev.filter((id) => id !== songId)
-        : [...prev, songId]
-    );
+  const toggleLike = async (songId: string) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Not logged in — redirect to login
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/user/likes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ songId }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setLikedSongs(data.likedSongs);
+      }
+    } catch (err) {
+      console.error("Failed to toggle like");
+    }
   };
 
   const handleNext = () => {
@@ -148,6 +191,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       handleVolume,
       toggleShuffle,
       toggleRepeat,
+      loadUserData,
     }}>
       {children}
     </MusicContext.Provider>

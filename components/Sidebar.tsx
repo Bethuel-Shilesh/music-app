@@ -1,7 +1,7 @@
 "use client";
 
 import { songs } from "@/lib/songs";
-import { Home, Mic2, Library, Heart, Clock, ListMusic, Disc3 } from "lucide-react";
+import { Home, Mic2, Library, Heart, Disc3, TrendingUp, Smile } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMusic } from "@/context/MusicContext";
@@ -18,9 +18,9 @@ export default function Sidebar() {
   ];
 
   const libraryItems = [
-    { icon: Heart, label: "Liked", sub: `${likedSongs.length} songs`, color: "#ec4899" },
-    { icon: Clock, label: "Recent", sub: "8 played", color: "#f59e0b" },
-    { icon: ListMusic, label: "Queue", sub: "Up next", color: "#6366f1" },
+    { icon: Heart, label: "Liked", sub: `${likedSongs.length} songs`, color: "#ec4899", href: "/liked" },
+    { icon: TrendingUp, label: "Trending", sub: "Hot now", color: "#f59e0b", href: "/trending" },
+    { icon: Smile, label: "Mood", sub: "By feeling", color: "#6366f1", href: "/mood" },
   ];
 
   return (
@@ -114,7 +114,8 @@ export default function Sidebar() {
       {/* ── LIBRARY GRID ── */}
       <div className="flex-shrink-0 px-5" style={{ marginBottom: "20px" }}>
         <div className="grid grid-cols-3 gap-2">
-          {libraryItems.map(({ icon: Icon, label, sub, color, href }) => (
+          {libraryItems.map(({ icon: Icon, label, sub, color, href }) => {
+            return (
           <div
             key={label}
             onClick={() => router.push(href)}
@@ -148,7 +149,8 @@ export default function Sidebar() {
                 {sub}
               </span>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

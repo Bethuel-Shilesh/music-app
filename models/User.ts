@@ -1,11 +1,25 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export interface IPlaylist {
+  id: string;
+  name: string;
+  songs: string[];
+}
+
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  likedSongs: string[];
+  playlists: IPlaylist[];
   createdAt: Date;
 }
+
+const PlaylistSchema = new Schema({
+  id: String,
+  name: String,
+  songs: [String],
+});
 
 const UserSchema = new Schema<IUser>(
   {
@@ -25,6 +39,14 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: [true, "Password is required"],
       minlength: 6,
+    },
+    likedSongs: {
+      type: [String],
+      default: [],
+    },
+    playlists: {
+      type: [PlaylistSchema],
+      default: [],
     },
   },
   { timestamps: true }

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMusic } from "@/context/MusicContext";
 import { songs } from "@/lib/songs";
 import { Play, Plus, ListMusic, Music2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 interface Playlist {
   id: string;
@@ -14,23 +15,87 @@ interface Playlist {
 
 export default function LibraryPage() {
   const { playSong } = useMusic();
+  const { user, isLoggedIn } = useAuth();
   const router = useRouter();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [playlistName, setPlaylistName] = useState("");
   const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleCreatePlaylist = () => {
-    if (!playlistName.trim()) return;
-    const newPlaylist: Playlist = {
-      id: Date.now().toString(),
-      name: playlistName,
-      songs: selectedSongs,
+  // Load playlists from database
+  useEffect(() => {
+    const loadPlaylists = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await fetch("/api/user/playlists", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPlaylists(data.playlists);
+        }
+      } catch (err) {
+        console.error("Failed to load playlists");
+      }
     };
-    setPlaylists([...playlists, newPlaylist]);
-    setPlaylistName("");
-    setSelectedSongs([]);
-    setShowCreate(false);
+    loadPlaylists();
+  }, []);
+
+  const handleCreatePlaylist = async () => {
+    if (!playlistName.trim()) return;
+
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
+
+    setLoading(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch("/api/user/playlists", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name: playlistName, songs: selectedSongs }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setPlaylists(data.playlists);
+        setPlaylistName("");
+        setSelectedSongs([]);
+        setShowCreate(false);
+      }
+    } catch (err) {
+      console.error("Failed to create playlist");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeletePlaylist = async (playlistId: string) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch("/api/user/playlists", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ playlistId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPlaylists(data.playlists);
+      }
+    } catch (err) {
+      console.error("Failed to delete playlist");
+    }
   };
 
   const toggleSong = (songId: string) => {
@@ -39,10 +104,6 @@ export default function LibraryPage() {
         ? prev.filter((id) => id !== songId)
         : [...prev, songId]
     );
-  };
-
-  const deletePlaylist = (id: string) => {
-    setPlaylists(playlists.filter((p) => p.id !== id));
   };
 
   return (
@@ -77,13 +138,12 @@ export default function LibraryPage() {
               Your Library 📚
             </h1>
             <p className="text-white/30 text-base">
-              Create and manage your playlists
+              {isLoggedIn ? `Welcome, ${user?.name}!` : "Login to save your playlists"}
             </p>
           </div>
 
-          {/* Create Playlist Button */}
           <button
-            onClick={() => setShowCreate(true)}
+            onClick={() => isLoggedIn ? setShowCreate(true) : router.push("/login")}
             className="flex items-center gap-3 rounded-2xl font-semibold transition-all duration-200 hover:scale-105"
             style={{
               padding: "16px 32px",
@@ -119,7 +179,6 @@ export default function LibraryPage() {
                 margin: "20px",
               }}
             >
-              {/* Close */}
               <button
                 onClick={() => setShowCreate(false)}
                 className="absolute top-5 right-5 w-8 h-8 rounded-xl flex items-center justify-center transition hover:scale-110"
@@ -173,11 +232,7 @@ export default function LibraryPage() {
                           border: selected ? "1px solid rgba(124,58,237,0.4)" : "1px solid rgba(255,255,255,0.06)",
                         }}
                       >
-                        <img
-                          src={song.cover}
-                          alt={song.title}
-                          className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
-                        />
+                        <img src={song.cover} alt={song.title} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold truncate" style={{ color: selected ? "#e9d5ff" : "rgba(255,255,255,0.7)" }}>
                             {song.title}
@@ -188,9 +243,7 @@ export default function LibraryPage() {
                         </div>
                         <div
                           className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{
-                            background: selected ? "linear-gradient(135deg, #7c3aed, #a855f7)" : "rgba(255,255,255,0.08)",
-                          }}
+                          style={{ background: selected ? "linear-gradient(135deg, #7c3aed, #a855f7)" : "rgba(255,255,255,0.08)" }}
                         >
                           {selected && <span className="text-white text-xs">✓</span>}
                         </div>
@@ -203,21 +256,28 @@ export default function LibraryPage() {
               {/* Create Button */}
               <button
                 onClick={handleCreatePlaylist}
-                disabled={!playlistName.trim()}
+                disabled={!playlistName.trim() || loading}
                 className="w-full flex items-center justify-center gap-2 rounded-2xl font-semibold transition-all duration-200 hover:scale-105"
                 style={{
                   height: "56px",
-                  background: playlistName.trim()
-                    ? "linear-gradient(135deg, #7c3aed, #a855f7)"
-                    : "rgba(124,58,237,0.3)",
+                  background: playlistName.trim() ? "linear-gradient(135deg, #7c3aed, #a855f7)" : "rgba(124,58,237,0.3)",
                   color: "white",
                   fontSize: "16px",
                   boxShadow: playlistName.trim() ? "0 0 25px rgba(124,58,237,0.4)" : "none",
                   cursor: playlistName.trim() ? "pointer" : "not-allowed",
                 }}
               >
-                <Plus size={18} />
-                Create Playlist
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    Creating...
+                  </div>
+                ) : (
+                  <>
+                    <Plus size={18} />
+                    Create Playlist
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -232,39 +292,54 @@ export default function LibraryPage() {
             >
               <ListMusic size={18} style={{ color: "#a855f7" }} />
             </div>
-            <h2
-              className="text-white text-2xl font-bold"
-              style={{ fontFamily: "Figtree, sans-serif" }}
-            >
+            <h2 className="text-white text-2xl font-bold" style={{ fontFamily: "Figtree, sans-serif" }}>
               My Playlists
             </h2>
             <span
               className="text-sm px-3 py-1 rounded-full"
-              style={{
-                background: "rgba(124,58,237,0.15)",
-                color: "#a855f7",
-                border: "1px solid rgba(124,58,237,0.3)",
-              }}
+              style={{ background: "rgba(124,58,237,0.15)", color: "#a855f7", border: "1px solid rgba(124,58,237,0.3)" }}
             >
               {playlists.length}
             </span>
           </div>
 
-          {playlists.length === 0 ? (
+          {!isLoggedIn ? (
             <div
               className="flex flex-col items-center justify-center rounded-3xl gap-5"
-              style={{
-                padding: "60px 40px",
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.06)",
-              }}
+              style={{ padding: "60px 40px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
             >
               <div
                 className="w-20 h-20 rounded-3xl flex items-center justify-center"
+                style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)" }}
+              >
+                <ListMusic size={36} style={{ color: "rgba(167,139,250,0.6)" }} />
+              </div>
+              <div className="text-center">
+                <p className="text-white/50 text-lg font-semibold mb-2">Login to create playlists</p>
+                <p className="text-white/20 text-sm">Your playlists will be saved to your account</p>
+              </div>
+              <button
+                onClick={() => router.push("/login")}
+                className="flex items-center gap-2 rounded-2xl font-semibold transition-all hover:scale-105"
                 style={{
-                  background: "rgba(124,58,237,0.15)",
-                  border: "1px solid rgba(124,58,237,0.3)",
+                  padding: "14px 28px",
+                  background: "linear-gradient(135deg, #7c3aed, #a855f7)",
+                  color: "white",
+                  fontSize: "14px",
+                  boxShadow: "0 0 20px rgba(124,58,237,0.4)",
                 }}
+              >
+                Login to Continue
+              </button>
+            </div>
+          ) : playlists.length === 0 ? (
+            <div
+              className="flex flex-col items-center justify-center rounded-3xl gap-5"
+              style={{ padding: "60px 40px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+            >
+              <div
+                className="w-20 h-20 rounded-3xl flex items-center justify-center"
+                style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)" }}
               >
                 <ListMusic size={36} style={{ color: "rgba(167,139,250,0.6)" }} />
               </div>
@@ -299,7 +374,6 @@ export default function LibraryPage() {
                     boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
                   }}
                 >
-                  {/* Playlist Header */}
                   <div
                     className="p-6"
                     style={{
@@ -315,17 +389,14 @@ export default function LibraryPage() {
                         <ListMusic size={22} className="text-white" />
                       </div>
                       <button
-                        onClick={() => deletePlaylist(playlist.id)}
+                        onClick={() => handleDeletePlaylist(playlist.id)}
                         className="w-8 h-8 rounded-xl flex items-center justify-center transition hover:scale-110"
                         style={{ background: "rgba(239,68,68,0.15)", color: "#f87171" }}
                       >
                         <X size={14} />
                       </button>
                     </div>
-                    <h3
-                      className="text-white font-bold text-lg truncate"
-                      style={{ fontFamily: "Figtree, sans-serif" }}
-                    >
+                    <h3 className="text-white font-bold text-lg truncate" style={{ fontFamily: "Figtree, sans-serif" }}>
                       {playlist.name}
                     </h3>
                     <p className="text-white/40 text-sm mt-1">
@@ -333,7 +404,6 @@ export default function LibraryPage() {
                     </p>
                   </div>
 
-                  {/* Playlist Songs */}
                   <div className="p-4 flex flex-col gap-2">
                     {playlist.songs.length === 0 ? (
                       <p className="text-white/20 text-sm text-center py-4">No songs added</p>
@@ -348,7 +418,6 @@ export default function LibraryPage() {
                               router.push("/now-playing");
                             }}
                             className="flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all duration-200 group"
-                            style={{ background: "transparent" }}
                             onMouseEnter={e => {
                               (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.1)";
                             }}
@@ -356,11 +425,7 @@ export default function LibraryPage() {
                               (e.currentTarget as HTMLElement).style.background = "transparent";
                             }}
                           >
-                            <img
-                              src={song.cover}
-                              alt={song.title}
-                              className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
-                            />
+                            <img src={song.cover} alt={song.title} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium truncate group-hover:text-purple-300 transition-colors"
                                 style={{ color: "rgba(255,255,255,0.8)" }}>
@@ -390,10 +455,7 @@ export default function LibraryPage() {
             >
               <Music2 size={18} style={{ color: "#a855f7" }} />
             </div>
-            <h2
-              className="text-white text-2xl font-bold"
-              style={{ fontFamily: "Figtree, sans-serif" }}
-            >
+            <h2 className="text-white text-2xl font-bold" style={{ fontFamily: "Figtree, sans-serif" }}>
               Suggested Songs
             </h2>
           </div>

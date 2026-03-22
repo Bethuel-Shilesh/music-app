@@ -4,9 +4,11 @@ import { useMusic } from "@/context/MusicContext";
 import { songs } from "@/lib/songs";
 import { Heart, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LikedPage() {
   const { likedSongs, playSong } = useMusic();
+  const { isLoggedIn } = useAuth();
   const router = useRouter();
 
   const likedSongsList = songs.filter((s) => likedSongs.includes(s.id));
@@ -84,7 +86,43 @@ export default function LikedPage() {
       <div style={{ padding: "40px 48px 60px 48px" }}>
 
         {/* Empty state */}
-        {likedSongsList.length === 0 ? (
+        {!isLoggedIn ? (
+          <div
+            className="flex flex-col items-center justify-center rounded-3xl gap-5"
+            style={{
+              padding: "80px 40px",
+              background: "rgba(255,255,255,0.02)",
+              border: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            <div
+              className="w-24 h-24 rounded-3xl flex items-center justify-center"
+              style={{
+                background: "rgba(236,72,153,0.15)",
+                border: "1px solid rgba(236,72,153,0.3)",
+              }}
+            >
+              <Heart size={40} style={{ color: "rgba(236,72,153,0.6)" }} />
+            </div>
+            <div className="text-center">
+              <p className="text-white/50 text-xl font-semibold mb-2">Login to see liked songs</p>
+              <p className="text-white/20 text-base">Your liked songs will be saved to your account</p>
+            </div>
+            <button
+              onClick={() => router.push("/login")}
+              className="flex items-center gap-2 rounded-2xl font-semibold transition-all hover:scale-105"
+              style={{
+                padding: "14px 28px",
+                background: "linear-gradient(135deg, #ec4899, #db2777)",
+                color: "white",
+                fontSize: "14px",
+                boxShadow: "0 0 20px rgba(236,72,153,0.4)",
+              }}
+            >
+              Login to Continue
+            </button>
+          </div>
+        ) : likedSongsList.length === 0 ? (
           <div
             className="flex flex-col items-center justify-center rounded-3xl gap-5"
             style={{
@@ -109,7 +147,7 @@ export default function LikedPage() {
               </p>
             </div>
           </div>
-        ) : (
+        ): (
 
           /* Songs list */
           <div

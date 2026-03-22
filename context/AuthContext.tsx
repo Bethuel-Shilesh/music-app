@@ -36,10 +36,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = () => {
+    // Clear all app data
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("likedSongs");
+    localStorage.removeItem("playlists");
+    localStorage.removeItem("recentSongs");
+    localStorage.removeItem("queue");
+
     setUser(null);
-    router.push("/");
+
+    // Force full page reload to reset ALL state
+    window.location.href = "/";
   };
 
   return (
